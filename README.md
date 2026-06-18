@@ -43,9 +43,12 @@ A **production-grade**, interactive command-line authentication system built wit
 
 ---
 
-## Architecture
+## Screenshots
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b3a22a03-d08f-4b60-b151-9a6814f0ae96" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b23946b4-b26d-4b72-ba89-c1304d85ade8" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c67d53f6-d594-48f1-8329-62c6d602979d" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e3b9d837-082d-46d9-b586-0731a2083b01" />
 
-will upload after making it via Excalidraw.io
 
 ---
 
