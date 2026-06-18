@@ -36,7 +36,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 FROM alpine:3.19
 
 # Install ca-certificates for HTTPS and timezone data
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata || true
 
 # Security: run as non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
