@@ -1,0 +1,24 @@
+# Compiled binary
+/auth-cli
+
+# Go build artifacts
+*.exe
+*.test
+*.out
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment file with secrets
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker volumes (local dev)
+pgdata/

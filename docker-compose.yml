@@ -1,0 +1,83 @@
+# ──────────────────────────────────────────────────────────────
+# Docker Compose configuration for Auth CLI
+# Services:
+#   - postgres: PostgreSQL 16 database with persistent volume
+#   - app: Interactive Go CLI that connects to postgres
+# Network isolation ensures services communicate internally only.
+# ──────────────────────────────────────────────────────────────
+
+services:
+  # ── PostgreSQL Database ──────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: auth-postgres
+    environment:
+      POSTGRES_USER: authuser
+      POSTGRES_PASSWORD: authpass
+      POSTGRES_DB: authdb
+      # Disable fsync for better dev performance (DO NOT use in production)
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    ports:
+      - "5432:5432"
+    volumes:
+      # Named volume ensures data persists across container restarts
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authuser -d authdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - auth-network
+    restart: unless-stopped
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ── Auth CLI Application ─────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_VERSION: "1.1.0"
+    container_name: auth-cli
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: authuser
+      DB_PASSWORD: authpass
+      DB_NAME: authdb
+      DB_SSLMODE: disable
+      SESSION_TIMEOUT_MINUTES: "30"
+      MAX_FAILED_ATTEMPTS: "5"
+      LOCKOUT_DURATION_MINUTES: "15"
+      BCRYPT_COST: "12"
+      TOTP_ENCRYPTION_KEY: "change-me-in-production-32bytes!"
+      MIN_PASSWORD_LENGTH: "8"
+      MAX_PASSWORD_LENGTH: "72"
+      REQUIRE_UPPERCASE: "true"
+      REQUIRE_LOWERCASE: "true"
+      REQUIRE_DIGIT: "true"
+      REQUIRE_SPECIAL: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - auth-network
+    # Required for interactive CLI input
+    stdin_open: true
+    tty: true
+
+# ── Networks ─────────────────────────────────────────────────
+networks:
+  auth-network:
+    driver: bridge
+
+# ── Persistent Volumes ───────────────────────────────────────
+volumes:
+  pgdata:
+    driver: local
