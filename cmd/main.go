@@ -13,7 +13,10 @@ import (
 
 func main() {
 	// Load configuration from environment variables
-	cfg:=config.Load()
+	cfg,err:=config.Load()
+	if err!=nil{
+		log.Fatalf("Failed to load config: %v", err)
+	}
 	// Connect to PostgreSQL (with retry logic for Docker startup)
 	db,err:=database.Connect(cfg)
 	if err!=nil{
@@ -26,6 +29,6 @@ func main() {
 	}
 	// Initialize auth service and start the CLI
 	authService:=auth.NewService(db,cfg)
-	handler:=cli.NewHandler(authService)
+	handler:=cli.NewHandler(authService,cfg)
 	handler.Run()
 }
