@@ -101,12 +101,13 @@ func (h *Handler) Run() {
 	for {
 		prompt := h.getPrompt()
 		input, err := h.line.Prompt(prompt)
-		if err != nil {
+		if err!=nil{
+			fmt.Println("DEBUG ERROR TYPE: %T\n",err)
+			fmt.Printf("DEBUG ERROR: %v\n", err)
 			if err == liner.ErrPromptAborted {
-				fmt.Println("\nUse 'exit' to quit.")
-				continue
-			}
-			// EOF (Ctrl+D)
+        fmt.Println("\nUse 'exit' to quit.")
+        continue
+    }
 			h.gracefulShutdown()
 			return
 		}
@@ -313,9 +314,10 @@ func (h *Handler) cmdEnable2FA() {
 	qrterminal.GenerateWithConfig(otpauthURL, qrterminal.Config{
 		Level:     qrterminal.L,
 		Writer:    os.Stdout,
-		BlackChar: qrterminal.BLACK,
-		WhiteChar: qrterminal.WHITE,
-		QuietZone: 2,
+		//qrterminal.BLACK, but it was taking my whole terminal so i reduced it to minimal size
+		BlackChar: "█",
+		WhiteChar: " ",
+		QuietZone: 1,
 	})
 
 	fmt.Printf("\n  %sStep 2:%s Or manually enter this secret key:\n", colorBold, colorReset)
@@ -542,11 +544,10 @@ func (h *Handler) printBanner() {
 
 // getPrompt returns the appropriate prompt string based on auth state.
 func (h *Handler) getPrompt() string {
-	if h.isLoggedIn() {
-		remaining := time.Until(h.currentSession.ExpiresAt).Round(time.Second)
-		return fmt.Sprintf("%s%s%s [%s] > ", colorGreen, h.currentUser.Username, colorReset, formatDuration(remaining))
-	}
-	return fmt.Sprintf("%s❯%s ", colorCyan, colorReset)
+    if h.isLoggedIn() {
+        return "auth> "
+    }
+    return "guest> "
 }
 
 // isLoggedIn returns true if the user has an active session.
